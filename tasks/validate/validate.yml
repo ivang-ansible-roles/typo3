@@ -1,0 +1,4 @@
+---
+- include: validate/10-domain.yml
+- include: validate/20-site-dir.yml
+- include: validate/30-db.yml

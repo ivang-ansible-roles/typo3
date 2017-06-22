@@ -1,0 +1,39 @@
+---
+# Generate mysql user password when none is defined
+# store that password into a temporary file for future use
+# 1. Check for temp file
+- name: Check for temp file
+  stat: path="/tmp/{{ typo3_db_user }}-{{ typo3_db_name }}"
+  register: tmp_pass_file
+  when: typo3_db_password is undefined
+
+# 2. Generate random password when none defined and no temp file is defined
+#    then store it in temp file
+- name: Generate random password
+  shell: "openssl rand -base64 12 > /tmp/{{ typo3_db_user }}-{{ typo3_db_name }}"
+  when:
+    - typo3_db_password is undefined
+    - not tmp_pass_file.stat.exists
+
+# 3. Read temp file when no pass is defined
+- name: Read temp file when no pass is defined
+  command: "cat /tmp/{{ typo3_db_user }}-{{ typo3_db_name }}"
+  register: read_tmpfile_cmd
+  when: typo3_db_password is undefined
+
+# 4. Store generated password into role variable
+- name: Store generated password into role variable
+  set_fact: typo3_db_password="{{ read_tmpfile_cmd.stdout }}"
+  when:
+    - typo3_db_password is undefined
+    - "'stdout' in read_tmpfile_cmd"
+    - read_tmpfile_cmd.stdout != ''
+#  notify: print password
+
+# 5. Print generated password (notify not working with set_fact)
+- name: Print generated password
+  debug: msg="Password {{ typo3_db_password }}"
+  when:
+    - typo3_db_password is defined
+    - "'stdout' in read_tmpfile_cmd"
+    - read_tmpfile_cmd.stdout != ''

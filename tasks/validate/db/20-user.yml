@@ -1,0 +1,6 @@
+---
+# Validate database username
+- name: Fail when DB user name is empty or not valid
+  fail: msg="DB user name is empty or not valid"
+  when: typo3_db_user is not string or
+        not typo3_db_user | match(db_username_pattern)

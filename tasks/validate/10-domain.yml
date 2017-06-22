@@ -1,0 +1,8 @@
+---
+# Validate domain name
+- fail:
+    msg: 'typo3_domain_name is empty or not valid'
+  when: typo3_domain_name is not string or
+        (not (typo3_domain_name | match(domain_name_pattern)) and
+        not (typo3_domain_name | match(ipaddr_pattern)) and
+        typo3_domain_name != 'localhost')

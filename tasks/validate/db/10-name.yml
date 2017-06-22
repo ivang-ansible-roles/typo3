@@ -1,0 +1,22 @@
+---
+# Validate database name
+- name: Fail when database name not set or invalid
+  fail: msg="Database name is empty or not valid"
+  when: typo3_db_name is not string or
+        not typo3_db_name | match(db_name_pattern)
+
+- name: Check if database already exist
+  shell: mysql -uroot --batch --skip-column-names -e "SHOW DATABASES WHERE \`database\`='{{ typo3_db_name }}'"
+  register: show_dbs_cmd
+
+- name: Check if database is empty
+  shell: mysql -uroot --batch --skip-column-names -e 'SHOW TABLES' {{ typo3_db_name }}
+  register: show_tbs_cmd
+  when: show_dbs_cmd.stdout == typo3_db_name
+
+- name: Fail when db is not empty
+  fail: msg="Database {{ typo3_db_name }} already exists and is not empty"
+  when:
+    - typo3_db_mode == 'none'
+    - "'stdout' in show_tbs_cmd"
+    - show_tbs_cmd.stdout != ''

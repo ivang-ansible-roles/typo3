@@ -1,0 +1,4 @@
+---
+- include: db/10-name.yml
+- include: db/20-user.yml
+- include: db/30-pass.yml

@@ -1,0 +1,5 @@
+---
+# Print generated password
+- name: print password
+  debug:
+    msg: "Password: {{ typo3_db_password }}"

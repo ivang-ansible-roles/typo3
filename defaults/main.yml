@@ -1,0 +1,29 @@
+---
+sites_home: /var/www/
+domain_name_pattern: '^(([a-zA-Z](-?[a-zA-Z0-9])*)\.)*[a-zA-Z](-?[a-zA-Z0-9])+\.[a-zA-Z]{2,}$'
+ipaddr_pattern: '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.|$)){4}$'
+db_name_pattern: '^[a-z][a-z0-9_]{0,28}[a-z0-9]$'
+db_username_pattern: '^[a-z][a-z0-9_]{0,14}[a-z0-9]$'
+
+############################################################
+# Role variables
+# typo3_site_name (default: 'New TYPO3 site')
+# typo3_domain_name
+# typo3_domain_redirect
+# typo3_root
+# typo3_admin_name (default: admin)
+# typo3_admin_password (default: joh316)
+# typo3_db_name
+# typo3_db_user
+# typo3_db_password (default: generated if empty)
+############################################################
+typo3_context: Development
+typo3_site_name: 'New TYPO3 site'
+typo3_setup_type: site
+# keep, override, clean, none
+typo3_root_mode: none
+# keep, clean, none
+typo3_db_mode: none
+typo3_admin_name: admin
+typo3_admin_password: password
+typo3_db_host: localhost

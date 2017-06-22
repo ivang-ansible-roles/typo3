@@ -1,0 +1,33 @@
+---
+# Validate site dir
+- name: Fail when site dir not set
+  fail:
+    msg: 'typo3_root variable is not set'
+  when: typo3_root is not string or
+        typo3_root == ''
+
+- name: Assume side dir is absolute
+  set_fact:
+    typo3_root_abs: "{{ typo3_root }}"
+
+- name: Prepent with sites home when side dir is relative
+  set_fact:
+    typo3_root_abs: "{{ sites_home }}{{ typo3_root }}"
+  when: not typo3_root | search('^/')
+
+- name: Check if site dir already exists
+  stat: path="{{ typo3_root_abs }}"
+  register: typo3_root_stat
+
+- name: Check if empty when site dir exists
+  shell: "ls -a --ignore={'.','..'} {{ typo3_root_abs }} | xargs"
+  register: typo3_root_content
+  when: typo3_root_stat.stat.exists
+
+- name: Fail when site dir exists and not empty
+  fail:
+    msg: "Directory {{ typo3_root_abs }} exists and contains: {{ typo3_root_content.stdout }}"
+  when:
+    - typo3_root_mode == 'none'
+    - "'stdout' in typo3_root_content"
+    - typo3_root_content.stdout != ''

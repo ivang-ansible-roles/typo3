@@ -1,0 +1,64 @@
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://composer.typo3.org/"
+        }
+    ],
+    "name": "ivang/typo3-distribution",
+    "description": "TYPO3 CMS Distribution with console support",
+    "license": "GPL-2.0+",
+    "require": {
+        "typo3/cms": "^8.7",
+
+        "typo3/cms-info": "^8.7",
+        "typo3/cms-info-pagetsconfig": "^8.7",
+        "typo3/cms-setup": "^8.7",
+        "typo3/cms-rte-ckeditor": "^8.7",
+        "typo3/cms-rsaauth": "^8.7",
+        "typo3/cms-func": "^8.7",
+        "typo3/cms-wizard-crpages": "^8.7",
+        "typo3/cms-wizard-sortpages": "^8.7",
+        "typo3/cms-about": "^8.7",
+        "typo3/cms-belog": "^8.7",
+        "typo3/cms-beuser": "^8.7",
+        "typo3/cms-context-help": "^8.7",
+        "typo3/cms-documentation": "^8.7",
+        "typo3/cms-felogin": "^8.7",
+        "typo3/cms-form": "^8.7",
+        "typo3/cms-impexp": "^8.7",
+        "typo3/cms-lowlevel": "^8.7",
+        "typo3/cms-reports": "^8.7",
+        "typo3/cms-sys-note": "^8.7",
+        "typo3/cms-t3editor": "^8.7",
+        "typo3/cms-tstemplate": "^8.7",
+        "typo3/cms-viewpage": "^8.7",
+
+        "bk2k/bootstrap-package": "^8.0",
+        "dmitryd/typo3-realurl": "^2.2",
+        "aoepeople/crawler": "dev-master",
+        "georgringer/news": "^6.0",
+        "dmitryd/typo3-dd-googlesitemap": "^2.1",
+        "reelworx/rx-shariff": "^10.0",
+        "typo3-ter/gravatar": "^1.0",
+        "typo3-ter/unroll": "^2.0",
+
+        "helhum/typo3-console": "4.6.1"
+    },
+    "require-dev": {
+    },
+    "scripts": {
+        "pre-deploy": [
+            "# Scripts here will be executed by Surf after composer install"
+        ]
+    },
+    "extra": {
+        "helhum/typo3-console": {
+            "install-extension-dummy": false
+        },
+        "typo3/cms": {
+            "cms-package-dir": "{$vendor-dir}/typo3/cms",
+            "web-dir": "web"
+        }
+    }
+}
