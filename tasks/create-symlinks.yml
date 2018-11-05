@@ -1,0 +1,46 @@
+---
+
+- name: Link .env
+  file:
+    src: "/var/www/{{ typo3_project_name }}/config/.env"
+    dest: "/var/www/{{ typo3_project_name }}/.env"
+    state: link
+
+- name: Link composer.json
+  file:
+    src: "/var/www/{{ typo3_project_name }}/config/composer.json"
+    dest: "/var/www/{{ typo3_project_name }}/composer.json"
+    state: link
+
+- name: Link composer.lock
+  file:
+    src: "/var/www/{{ typo3_project_name }}/config/composer.lock"
+    dest: "/var/www/{{ typo3_project_name }}/composer.lock"
+    state: link
+
+- name: Ensure typo3conf path exists
+  file:
+    path: "/var/www/{{ typo3_project_name }}/public/typo3conf"
+    state: directory
+  when: typo3_is76 is defined
+
+- name: Link LocalConfiguration.php
+  file:
+    src: "/var/www/{{ typo3_project_name }}/config/LocalConfiguration.php"
+    dest: "/var/www/{{ typo3_project_name }}/public/typo3conf/LocalConfiguration.php"
+    state: link
+  when: typo3_is76 is defined
+
+- name: Link AdditionalConfiguration.php
+  file:
+    src: "/var/www/{{ typo3_project_name }}/config/AdditionalConfiguration.php"
+    dest: "/var/www/{{ typo3_project_name }}/public/typo3conf/AdditionalConfiguration.php"
+    state: link
+  when: typo3_is76 is defined
+
+- name: Link RealURLConfiguration.php
+  file:
+    src: "/var/www/{{ typo3_project_name }}/config/RealURLConfiguration.php"
+    dest: "/var/www/{{ typo3_project_name }}/public/typo3conf/RealURLConfiguration.php"
+    state: link
+  when: typo3_is76 is defined

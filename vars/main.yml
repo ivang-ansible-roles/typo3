@@ -1,0 +1,3 @@
+---
+
+php_ver: "{{ php_version | default('7.2') }}"

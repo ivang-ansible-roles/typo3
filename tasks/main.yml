@@ -1,52 +1,69 @@
 ---
-- include: validate/validate.yml
 
-- name: Drop db when in clean mode
-  mysql_db:
-    name: "{{ typo3_db_name }}"
-    state: absent
-  when: typo3_db_mode == 'clean'
+# typo3_project_name: muume_website_87
+# typo3_dbname: db_87
+# typo3_dbuser: db_87
+# typo3_dbimport: muume_db.sql.gz
+# typo3_vhost: muume-website-87.loc
 
-- name: Create mysql database
-  mysql_db:
-    name: "{{ typo3_db_name }}"
-    state: present
-    encoding: utf8
-    collation: 'utf8_unicode_ci'
+- name: "[TYPO3]: copy project files {{ typo3_project_name }} to home dir"
+  synchronize:
+    src: "../workdir/{{ typo3_project_name }}"
+    dest: "/home/{{ ansible_user }}/"
+    rsync_path: /usr/bin/rsync
 
-- name: Create mysql user
-  mysql_user:
-    name: "{{ typo3_db_user }}"
-    password: "{{ typo3_db_password }}"
-    host: "{{ typo3_db_host }}"
-    state: present
-    priv: '{{ typo3_db_name }}.*:ALL'
-
-- name: Remove site dir when in clean mode
-  file: path="{{ typo3_root_abs }}" state=absent
-  when: typo3_root_mode == 'clean'
-
-- name: Copy TYPO3 Distribution into site root folder
-  synchronize: src=TYPO3-Distribution/ dest="{{ typo3_root_abs }}"
-  when: typo3_root_mode != 'keep'
+- name: "[TYPO3]: copy project files {{ typo3_project_name }}"
+  command: "rsync --delay-updates -F --compress --archive /home/{{ ansible_user }}/{{ typo3_project_name }} /var/www/"
   notify: nginx fix file permissions
+
+#- include: create-symlinks.yml
+
+- name: "Drop db when importing {{ typo3_dbname }}"
+  mysql_db:
+    name: "{{ typo3_dbname }}"
+    state: absent
+  when: typo3_dbimport is defined
+
+- name: "Create mysql database {{ typo3_dbname }}"
+  mysql_db:
+    name: "{{ typo3_dbname }}"
+    state: present
+    encoding: utf8mb4
+    collation: utf8mb4_unicode_ci
+
+- name: "Create mysql user: {{ typo3_dbuser }}"
+  mysql_user:
+    name: "{{ typo3_dbuser }}"
+    password: "{{ typo3_dbpass }}"
+    host: localhost
+    state: present
+    priv: "{{ typo3_dbname }}.*:ALL"
+
+- name: Copy database dump file
+  copy:
+    src: "data/fixtures/{{ typo3_dbimport }}"
+    dest: /tmp
+  when: typo3_dbimport is defined
+
+- name: Restore database
+  mysql_db:
+    name: "{{ typo3_dbname }}"
+    state: import
+    target: "/tmp/{{ typo3_dbimport }}"
+  when: typo3_dbimport is defined
 
 - name: Run composer install
-  composer: command=install  working_dir="{{ typo3_root_abs }}"
+  command: "php{{ php_ver }} /usr/bin/composer install chdir=/var/www/{{ typo3_project_name }}"
   notify: nginx fix file permissions
 
-- name: Bootstrap TYPO3
-  command: >
-    vendor/bin/typo3cms install:setup --non-interactive --use-existing-database --site-setup-type='{{ typo3_setup_type }}' --database-user-name='{{ typo3_db_user }}' --database-user-password='{{ typo3_db_password }}' --database-name='{{ typo3_db_name }}' --admin-user-name='{{ typo3_admin_name }}' --admin-password='{{ typo3_admin_password }}' --site-name='{{ typo3_site_name }}'
-    chdir="{{ typo3_root_abs }}"
-  register: boot_t3_cmd
-  failed_when:
-    - "'TYPO3 seems to be already set up!' not in boot_t3_cmd.stdout"
-    - "'Successfully installed TYPO3 CMS!' not in boot_t3_cmd.stdout"
-  notify: nginx fix file permissions
-
-- name: Create vhost for new site
+- name: "Create vhost for {{ typo3_vhost }}"
   template:
     src: vhost-typo3.conf
-    dest: "{{ nginx_conf_dir }}/{{ typo3_domain_name }}.conf"
+    dest: "/etc/nginx/sites-available/{{ typo3_vhost }}"
+
+- name: "Create vhost symlink for {{ typo3_vhost }}"
+  file:
+    src: "/etc/nginx/sites-available/{{ typo3_vhost }}"
+    dest: "/etc/nginx/sites-enabled/{{ typo3_vhost }}"
+    state: link
   notify: restart nginx
